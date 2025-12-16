@@ -1,13 +1,27 @@
+
 import { GoogleGenAI } from "@google/genai";
 import { GenerationConfig, GeneratedImage } from "../types";
 
+// Helper to get client safely
+const getAiClient = () => {
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    console.warn("API Key is missing. Generation calls will fail.");
+    // Return a dummy client or one that will fail gracefully on call
+    return new GoogleGenAI({ apiKey: "missing-key" }); 
+  }
+  return new GoogleGenAI({ apiKey });
+};
+
 // Initialize Gemini Client
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = getAiClient();
 
 const MODEL_NAME = 'gemini-2.5-flash-image';
 const TEXT_MODEL_NAME = 'gemini-2.5-flash';
 
 export const enhancePrompt = async (originalPrompt: string): Promise<string> => {
+  if (!process.env.API_KEY) throw new Error("API Key is missing in configuration.");
+  
   try {
     const response = await ai.models.generateContent({
       model: TEXT_MODEL_NAME,
@@ -27,6 +41,8 @@ export const enhancePrompt = async (originalPrompt: string): Promise<string> => 
 };
 
 export const generateImage = async (config: GenerationConfig): Promise<GeneratedImage> => {
+  if (!process.env.API_KEY) throw new Error("API Key is missing. Please add API_KEY to Vercel Environment Variables.");
+
   try {
     const { prompt, style, aspectRatio, referenceImage, referenceMimeType } = config;
 
