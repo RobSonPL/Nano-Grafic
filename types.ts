@@ -43,3 +43,11 @@ export interface GalleryItem {
   timestamp: number;
   prompt?: string;
 }
+
+export interface VideoStyle {
+  id: string;
+  title: string;
+  description: string;
+  modifier: string;
+  iconColor: string;
+}

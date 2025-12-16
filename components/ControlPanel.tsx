@@ -1,8 +1,8 @@
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { AspectRatio, ImageFormat } from '../types';
 import { STYLE_PRESETS, ASPECT_RATIO_OPTIONS } from '../constants';
-import { Settings, Image as ImageIcon, Sparkles, Layout, Download, Wand2, Upload, X, Mic, MicOff } from 'lucide-react';
+import { Settings, Image as ImageIcon, Sparkles, Layout, Download, Wand2, Upload, X } from 'lucide-react';
 import { useLanguage } from './LanguageContext';
 
 interface ControlPanelProps {
@@ -43,61 +43,11 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   onEnhancePrompt
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef<any>(null);
   const { t, language, setLanguage } = useLanguage();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
         onUpload(e.target.files[0]);
-    }
-  };
-
-  // Initialize Speech Recognition
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = false; // Stop after speaking
-        recognition.interimResults = false;
-        
-        // Dynamic language setting based on selection
-        const langMap = { 'en': 'en-US', 'pl': 'pl-PL', 'de': 'de-DE' };
-        recognition.lang = langMap[language] || 'en-US';
-
-        recognition.onstart = () => setIsListening(true);
-        recognition.onend = () => setIsListening(false);
-        recognition.onresult = (event: any) => {
-          const transcript = event.results[0][0].transcript;
-          if (transcript) {
-            // Append to existing prompt
-            setPrompt((prev) => prev ? `${prev} ${transcript}` : transcript);
-          }
-        };
-        recognition.onerror = (event: any) => {
-            console.error("Speech recognition error", event.error);
-            setIsListening(false);
-        };
-
-        recognitionRef.current = recognition;
-      }
-    }
-  }, [setPrompt, language]);
-
-  const toggleListening = () => {
-    if (!recognitionRef.current) {
-      alert("Browser does not support speech recognition.");
-      return;
-    }
-
-    if (isListening) {
-      recognitionRef.current.stop();
-    } else {
-      // Update lang before starting
-      const langMap = { 'en': 'en-US', 'pl': 'pl-PL', 'de': 'de-DE' };
-      recognitionRef.current.lang = langMap[language] || 'en-US';
-      recognitionRef.current.start();
     }
   };
 
@@ -182,16 +132,6 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
               {t.promptLabel}
             </label>
             <div className="flex items-center gap-3">
-                {/* Dictation Button */}
-                <button
-                    onClick={toggleListening}
-                    className={`flex items-center gap-1 text-xs transition-colors ${isListening ? 'text-red-500 animate-pulse font-bold' : 'text-gray-400 hover:text-white'}`}
-                    title={t.dictate}
-                >
-                    {isListening ? <Mic size={12} /> : <MicOff size={12} />}
-                    {isListening ? t.listening : t.dictate}
-                </button>
-
                 {/* AI Enhance Button */}
                 <button
                     onClick={onEnhancePrompt}
@@ -209,7 +149,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder={hasReferenceImage ? t.promptPlaceholderEdit : t.promptPlaceholder}
-                className={`w-full h-32 bg-gray-900 border rounded-xl p-3 text-sm text-gray-200 placeholder-gray-500 focus:ring-2 focus:border-transparent outline-none resize-none transition-all ${isListening ? 'border-red-500/50 ring-2 ring-red-500/20' : 'border-gray-600 focus:ring-yellow-500'}`}
+                className="w-full h-32 bg-gray-900 border border-gray-600 rounded-xl p-3 text-sm text-gray-200 placeholder-gray-500 focus:ring-2 focus:border-transparent focus:ring-yellow-500 outline-none resize-none transition-all"
             />
             {/* Visual indicator for AI Enhance */}
             {isEnhancing && (

@@ -1,7 +1,5 @@
 {
   "name": "NanoGraphix ",
   "description": "A powerful AI image editor and generator powered by Gemini 2.5 Flash. Edit photos, remove backgrounds, or generate stunning visuals from text prompts with zero watermarks.",
-  "requestFramePermissions": [
-    "microphone"
-  ]
+  "requestFramePermissions": []
 }
